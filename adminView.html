@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon">
+    <title>Client</title>
+</head>
+<body>
+    <script src="/socket.io/socket.io.js"></script>
+</body>
+</html>
+
+<label class="RoomId" id="RoomIDText">Room ___</label>
+
+<label class="switch">
+  <input class="switchClient" type="button" id="clientButton" name="btnToggle" onclick="toggleClientView()" />
+  <span></span>
+</label>
+<label id="clientSwitchText">Switch to Client View</label>
+<br><br>
+
+<div class="selectRoom" id="roomSelect">
+    <span id="roomSelectText">Welcome to NeuroLight! Please type in a room, and make sure it aligns with your client!</span>
+    <br>
+    <input id="roomSelectInput" minlength="3" maxlength="10" size="20" placeholder="Can be between 3-10 numbers/letters"></input>
+    <button onclick="roomSelected()" id="roomSelectSubmit">Submit</button>
+    <br>
+    <label id="roomSelectError">Please input a valid room!</label>
+    <br>
+    <label id="roomSelectPatreon">This website is hosted for free thanks to generous patrons! It would be greatly appreciated if you became one! (insert link)</label>
+</div>
+
+<div class="selectUser" id="userSelect">
+    <span id="userSelectText">Welcome to room ___, what user are you?</span>
+    <br>
+    <button onclick="loadClient(true)" id="userSelectClient">Client</button>
+    <button onclick="loadClient(false)" id="userSelectAdmin">Admin</button>
+</div>
+
+<span class="circle" id="colorCircle"></span>
+
+<img src="Smile.png" class="smile" id="smileDrawn"></img>
+
+
+<b class="sectionHeader">Color Controls</b>
+
+<div class="slidecontainer"> 
+    <span class="valueReader" id="redVal"></span><br>
+    <input onchange="changeRGB()" oninput="changeRGB()" type="range" min="0" max="255" value="100" class="slider" id="myRangeRed">
+</div>
+
+<div class="slidecontainer">
+    <span class="valueReader" id="greenVal"></span><br>
+    <input onchange="changeRGB()" oninput="changeRGB()" type="range" min="0" max="255" value="0" class="slider" id="myRangeGreen">
+</div>
+
+<div class="slidecontainer">
+    <span class="valueReader" id="blueVal"></span><br>
+    <input onchange="changeRGB()" oninput="changeRGB()" type="range" min="0" max="255" value="0" class="slider" id="myRangeBlue">
+</div>
+
+<button onclick="colorChange(100, 0, 0)" class="colorButton" name="rgb(100, 0, 0)"></button>
+<button onclick="colorChange(255, 55, 0)" class="colorButton" name="rgb(255, 55, 0)"></button>
+<button onclick="colorChange(0, 255, 0)" class="colorButton" name="rgb(0, 255, 0)"></button>
+<button onclick="colorChange(55, 0, 255)" class="colorButton" name="rgb(55, 0, 255)"></button>
+<button onclick="colorChange(0, 0, 0)" class="colorButton" name="rgb(0, 0, 0)"></button>
+<button onclick="colorChange(200, 0, 0)" class="colorButton" name="rgb(200, 0, 0)"></button>
+<button onclick="colorChange(255, 255, 0)" class="colorButton" name="rgb(255, 255, 0)"></button>
+<button onclick="colorChange(100, 0, 200)" class="colorButton" name="rgb(100, 0, 200)"></button>
+<button onclick="colorChange(255, 255, 255)" class="colorButton" name="rgb(255, 255, 255)"></button>
+<button onclick="colorChange(255, 20, 0)" class="colorButton" name="rgb(255, 20, 0)"></button>
+<button onclick="colorChange(175, 255, 0)" class="colorButton" name="rgb(175, 255, 0)"></button>
+<button onclick="colorChange(0, 0, 255)" class="colorButton" name="rgb(0, 0, 255)"></button>
+<button onclick="colorChange(255, 0, 255)" class="colorButton" name="rgb(255, 0, 255)"></button>
+
+<br><br><b class="sectionHeader">Frequency Control</b>
+
+<div class="slidecontainer">
+    <span class="valueReader" id="freqVal"></span><br>
+    <input onchange="changeFrequency()" type="range" min="0" max="40" value="0" class="slider" id="freqRange">
+</div>
+
+<b class="sectionHeader">Smile Object Controls</b><br>
+
+<button class="smileToggler" onclick="smileToggle()" id="toggleSmileButton">Turn Smile on</button>
+
+<div class="slidecontainer">
+    <span class="valueReader" id="smileX"></span><br>
+    <input onchange="adjustSmile()" oninput="adjustSmile()" type="range" min="0" max="2000" value="100" class="slider" id="smileXRange">
+</div>
+
+<div class="slidecontainer">
+    <span class="valueReader" id="smileY"></span><br>
+    <input onchange="adjustSmile()" oninput="adjustSmile()" type="range" min="0" max="1500" value="100" class="slider" id="smileYRange">
+</div>
+
+<b class="sectionHeader">Circle Controls</b>
+
+<div class="slidecontainer">
+    <span class="valueReader" id="circleX"></span><br>
+    <input onchange="adjustCircle()" oninput="adjustCircle()" type="range" min="0" max="1000" value="500" class="slider" id="circleXRange">
+</div>
+
+<div class="slidecontainer">
+    <span class="valueReader" id="circleY"></span><br>
+    <input onchange="adjustCircle()" oninput="adjustCircle()" type="range" min="0" max="500" value="250" class="slider" id="circleYRange">
+</div>
+
+<div class="slidecontainer">
+    <span class="valueReader" id="circleRadius"></span><br>
+    <input onchange="adjustRadius()" oninput="adjustRadius()" type="range" min="1" max="10" value="5" class="slider" id="circleRadiusRange">
+</div>
+
+<button onclick="resetCircle()">Reset</button>
+
+
+
+<style>
+.circle {
+  height: 500px;
+  width: 500px;
+  background: rgb(100, 0, 0);
+  border-radius: 50%;
+  display: inline-block;
+  z-index: -1;
+  position: absolute;
+  left: 500px;
+  top: 250px;
+} 
+.smile{
+    height: 20px;
+    width: 20px;
+    background: #dfdfdf;
+    display: inline-block;
+    
+    z-index: 10;
+    top: 100px;
+    left: 100px;
+    position: absolute;
+    opacity: 0;
+}
+.smileToggler{
+    height: 20px;
+    width: 200px;
+    background: rgb(189, 189, 189);
+    opacity: .8;
+}
+.smileToggler:hover{
+    opacity: 1;
+}
+.slider{
+    -webkit-appearance: none;
+    height: 20px;
+    width: 80%;
+    margin-bottom: 20px;
+    outline: none;
+    opacity: 0.7;
+    border-radius: 50px;
+    background-color: grey;
+}
+.slider:hover{
+    opacity: 1;
+}
+.slider::-webkit-slider-thumb{
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0%; 
+    
+    /* background: rgb(189, 189, 189); */
+    background: var(--SliderColor);
+    border-radius: 50px;
+    height: 30px;
+    width: 20px;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    height: 60px;
+    width: 30px;
+}
+
+.valueReader{
+    font-size: 20px;
+    background: "rgb(0,0,0)";
+}
+.colorButton{
+    -webkit-appearance: none;
+    height: 20px;
+    width: 20px;
+    appearance: none;
+    border-color: grey;
+    opacity: .7;
+}
+.colorButton:hover{
+    background: white;
+    opacity: 1;
+}
+
+.colorButton:focus{
+    background: white;
+}
+.switchClient{
+    width: 50px;
+    height: 50px;
+    background: rgb(227, 89, 255);
+}
+.selectRoom{
+    position: absolute;
+    left: 500px;
+    top: 250px;
+}
+.selectUser{
+    position: absolute;
+    left: 500px;
+    top: 250px;
+}
+.sectionHeader{
+    font-size: 200%;
+    
+}
+</style>
+
+
+<script>
+
+    const socket = io();
+    var roomID = "";
+
+    var clientButton = document.getElementById("clientButton");
+    clientButton.style.backgroundColor = "rgb(185, 185, 185)";
+    
+    var circle = document.getElementById("colorCircle")
+    var redSlider = document.getElementById("myRangeRed")
+    var redOutput = document.getElementById("redVal");
+    redOutput.innerHTML = "Red: "+redSlider.value; // Display the default slider value
+    
+    var greenSlider = document.getElementById("myRangeGreen")
+    var greenOutput = document.getElementById("greenVal");
+    greenOutput.innerHTML =  "Green: "+greenSlider.value; // Display the default slider value
+    
+    var blueSlider = document.getElementById("myRangeBlue")
+    var blueOutput = document.getElementById("blueVal");
+    blueOutput.innerHTML = "Blue: "+blueSlider.value; // Display the default slider value
+    
+    var freqSlider = document.getElementById("freqRange");
+    var freqOutput = document.getElementById("freqVal");
+    freqOutput.innerHTML = "Frequency: "+freqSlider.value; // Display the default slider value
+    
+    var smile = document.getElementById("smileDrawn");
+    var smileButton = document.getElementById("toggleSmileButton");
+    var smileXSlider = document.getElementById("smileXRange");
+    var smileXOutput = document.getElementById("smileX");
+    smileXOutput.innerHTML = "Smile Position X: "+smileXSlider.value;
+    var smileYSlider = document.getElementById("smileYRange");
+    var smileYOutput = document.getElementById("smileY");
+    smileYOutput.innerHTML = "Smile Position Y: "+smileYSlider.value;
+    
+    var circleXSlider = document.getElementById("circleXRange");
+    var circleXOutput = document.getElementById("circleX");
+    circleXOutput.innerHTML = "Circle X: "+circleXSlider.value;
+    var circleYSlider = document.getElementById("circleYRange");
+    var circleYOutput = document.getElementById("circleY");
+    circleYOutput.innerHTML = "Circle Y: "+circleYSlider.value;
+    
+    var circleRadiusSlider = document.getElementById("circleRadiusRange");
+    var circleRadiusOutput = document.getElementById("circleRadius");
+    circleRadiusOutput.innerHTML = "Circle Radius: "+circleRadiusSlider.value;
+    
+    const roomInput = document.getElementById("roomSelectInput");
+    var roomNumText = document.getElementById("RoomIDText");
+
+    roomInput.addEventListener('input', () => { });
+
+    function roomSelect(){
+        var elems = document.body.getElementsByTagName("*");
+        for(var elem of elems){
+            if(!elem.id.includes("roomSelect")){
+                elem.style.visibility = "hidden";
+            }
+            else{
+                elem.style.visibility = "visible";
+            }
+        }
+        document.getElementById("roomSelectError").style.visibility = "hidden";
+    }
+
+    function roomSelected(){
+        if(roomInput.value.length < 11 && roomInput.value.length > 2){
+            roomID = roomInput.value;
+            document.getElementById("userSelectText").innerHTML = "Welcome to room "+roomID+", what user are you?";
+            roomNumText.textContent = "Room "+roomID;
+            socket.emit('room select', roomID);
+            askUserClient();
+        }
+        else{
+            document.getElementById("roomSelectError").style.visibility = "visible";
+        }
+    }
+
+    function askUserClient(){
+        var elems = document.body.getElementsByTagName("*");
+        for(var elem of elems){
+            if(!elem.id.includes("userSelect")){
+                elem.style.visibility = "hidden";
+            }
+            else{
+                elem.style.visibility = "visible";
+            }
+        }
+    }
+
+    function loadClient(isClient){
+        var elems = document.body.getElementsByTagName("*");
+        if(!isClient){
+            for(var elem of elems){
+                if(elem.id != "colorCircle" && elem.id != "smileDrawn" && !elem.id.includes("userSelect") && !elem.id.includes("roomSelect")){
+                    elem.style.visibility = "visible";
+                }
+                else{
+                    elem.style.visibility = "hidden";
+                }
+            }
+        }
+        else{
+            for(var elem of elems){
+                if(elem.id != "colorCircle" && elem.id != "smileDrawn" && elem.id!="RoomIDText"){
+                    elem.style.visibility = "hidden";
+                }
+                else{
+                    elem.style.visibility = "visible";
+                }
+            }
+            document.body.style.background = 'black';
+            roomNumText.style.color = 'white';
+        }
+    }
+    // When testing, use loadClient, otherwise roomSelect
+    // loadClient()
+    roomSelect()
+    
+    function setColorButtons(){
+        var colorBtns = document.getElementsByClassName("colorButton");
+        for (var btn of colorBtns){
+            btn.style.backgroundColor = btn.name;
+        }
+        //set color sliders
+        redSlider.style.setProperty('--SliderColor', "rgb(255, 0, 0)");
+        greenSlider.style.setProperty('--SliderColor', "rgb(0, 255, 0)");
+        blueSlider.style.setProperty('--SliderColor', "rgb(0, 0, 255)");
+        //freq slider
+        freqSlider.style.setProperty('--SliderColor', "rgb(169, 255, 244)");
+        //smile pos sliders
+        smileXSlider.style.setProperty('--SliderColor', "rgb(238, 154, 255)");
+        smileYSlider.style.setProperty('--SliderColor', "rgb(255, 236, 154)");
+        //circle pos and radius sliders
+        circleXSlider.style.setProperty('--SliderColor', "rgb(227, 89, 255)");
+        circleYSlider.style.setProperty('--SliderColor', "rgb(255, 227, 101)");
+        circleRadiusSlider.style.setProperty('--SliderColor', "rgb(43, 108, 35)");
+    }
+    setColorButtons()
+    
+    //socket stuff
+    socket.on('change color', (r,g,b,fs) => {
+        colorChange(r,g,b,fs);
+    })
+    socket.on('change freq', (fs,nf) => {
+        changeFrequency(fs,nf);
+    })
+    socket.on('change smile', (fs, nO) => {
+        smileToggle(fs, nO);
+    })
+    socket.on('change smile pos', (fs, nX, nY) => {
+        adjustSmile(fs, nX, nY);
+    })
+    socket.on('change circle pos', (fs, nX, nY) => {
+        adjustCircle(fs, nX, nY);
+    })
+    socket.on('change radius', (fs, nR) => {
+        adjustRadius(fs, nR);
+    })
+
+
+    function flashFunction(){
+        circle.style.opacity = (circle.style.opacity == 0 ? 1 : 0);
+    }
+    
+    var flashInterval = setInterval(flashFunction,1000);
+    clearInterval(flashInterval);
+    
+    function changeRGB(){
+        colorChange(redSlider.value,greenSlider.value,blueSlider.value)
+    }
+    
+
+    function colorChange(r,g,b,fromSocket=false){
+        circle.style.backgroundColor =  "rgb(" + r + "," + g + "," + b + ")";
+        redSlider.value = r;
+        greenSlider.value = g;
+        blueSlider.value = b;
+        redOutput.innerHTML = "Red: "+redSlider.value;
+        greenOutput.innerHTML = "Green: "+greenSlider.value;
+        blueOutput.innerHTML = "Blue: "+blueSlider.value;
+        if(!fromSocket){
+            socket.emit('change color', r,g,b,true,roomID);
+        }
+    }
+    
+    function changeFrequency(fromSocket=false, newFreq=null){
+        if (newFreq!=null){
+            freqSlider.value=newFreq;
+        }
+        freqOutput.innerHTML = "Frequency: "+freqSlider.value;
+        clearInterval(flashInterval);
+        if (freqSlider.value > 0){
+            flashInterval = setInterval(flashFunction, 1000/(freqSlider.value*2));
+        }
+        else{
+            circle.style.opacity = 1;
+        }
+        if(!fromSocket){
+            socket.emit('change freq', true, freqSlider.value,roomID);
+        }
+    }
+    
+    function adjustSmile(fromSocket=false, newX=null, newY=null){
+        if(newX!=null){
+            smileXSlider.value = newX;
+            smileYSlider.value = newY;
+        }
+        smileXOutput.innerHTML = "Smile Position X: "+smileXSlider.value;
+        smileYOutput.innerHTML = "Smile Position Y: "+smileYSlider.value;
+        
+        smile.style.left = smileXSlider.value+"px";
+        smile.style.top = smileYSlider.value+"px";
+        if(!fromSocket){
+            socket.emit('change smile pos', true, smileXSlider.value, smileYSlider.value,roomID);
+        }
+    }
+
+    function smileToggle(fromSocket=false, newOpacity=null){
+        console.log("look now4",smile.style.opacity);
+        if(fromSocket){
+            if(newOpacity!=null){
+                smile.style.opacity = (smile.style.opacity == 0 ? 1 : 0);
+                console.log("look now",smile.style.opacity);
+            }
+            else{
+                smile.style.opacity = newOpacity;
+                console.log("look now2",smile.style.opacity);
+            }
+
+            if(smileButton.textContent == "Turn Smile on"){
+                smileButton.style.backgroundColor = "rgb(255, 20, 20)";
+                smileButton.textContent = "Turn Smile off";
+            }
+            else{
+                smileButton.style.backgroundColor = "rgb(189, 189, 189)";
+                smileButton.textContent = "Turn Smile on";
+            }
+        }
+        else{
+            console.log(smile.style.opacity);
+            socket.emit('change smile', true, smile.style.opacity,roomID);
+        }
+    }
+    
+    function adjustCircle(fromSocket=false, newX=null, newY=null){
+        if(newX!=null){
+            circleXSlider.value = newX;
+            circleYSlider.value = newY;
+        }
+        circleXOutput.innerHTML = "Circle Position X: "+circleXSlider.value;
+        circleYOutput.innerHTML = "Circle Position Y: "+circleYSlider.value;
+        
+        circle.style.left = circleXSlider.value+"px";
+        circle.style.top = circleYSlider.value+"px";
+        if(!fromSocket){
+            socket.emit('change circle pos', true, circleXSlider.value, circleYSlider.value,roomID);
+        }
+    }
+    
+    function adjustRadius(fromSocket=false, newRadius=null){
+        if(newRadius!=null){
+            circleRadiusSlider.value = newRadius;
+        }
+        circleRadiusOutput.innerHTML = "Circle Radius: "+circleRadiusSlider.value;
+        
+        circle.style.height = circleRadiusSlider.value+"00px";
+        circle.style.width = circleRadiusSlider.value+"00px";
+        if(!fromSocket){
+            socket.emit('change radius', true, circleRadiusSlider.value,roomID);
+        }
+    }
+    
+    function toggleClientView(){
+        var clientSwitchText = document.getElementById("clientSwitchText");
+        var elems = document.body.getElementsByTagName("*");
+        if(clientButton.style.backgroundColor === "rgb(185, 185, 185)"){
+            clientButton.style.backgroundColor = "rgb(0, 238, 255)";
+            clientSwitchText.textContent = "Switch to Admin View";
+            clientSwitchText.style.color = "white";
+            //Toggle Visibility for client
+            for(var elem of elems){
+                if(elem.id != "clientButton" && elem.id != "clientSwitchText" && !elem.id.includes("userSelect") && !elem.id.includes("roomSelect") && !elem.id.includes("RoomIDText")){
+                    elem.style.visibility = (elem.style.visibility == "visible" ? "hidden" : "visible");
+                }
+            }
+            document.body.style.background = 'black';
+            roomNumText.style.color = 'white';
+        }
+        else{
+            clientButton.style.backgroundColor = "rgb(185, 185, 185)";
+            clientSwitchText.textContent = "Switch to Client View";
+            clientSwitchText.style.color = "black";
+            //Toggle Visibility for admin
+            for(var elem of elems){
+                if(elem.id != "clientButton" && elem.id != "clientSwitchText" && !elem.id.includes("userSelect") && !elem.id.includes("roomSelect") && !elem.id.includes("RoomIDText")){
+                    elem.style.visibility = (elem.style.visibility == "visible" ? "hidden" : "visible");
+                }
+            }
+            document.body.style.background = 'white';
+            roomNumText.style.color = 'black';
+        }
+    }
+    
+    function resetCircle(){
+        changeFrequency(false, 0);
+        circle.style.backgroundColor =  "rgb(100,0,0)";
+        colorChange(100,0,0);
+
+        if(smile.style.opacity == 1){
+            smileToggle();
+        }
+        
+        adjustCircle(false, 500, 250);
+        
+        adjustSmile(false, 100, 100);
+        
+        adjustRadius(false, 5);
+    }
+    
+</script>

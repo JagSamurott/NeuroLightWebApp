@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon">
+    <title>Client</title>
+</head>
+<body>
+    <script src="/socket.io/socket.io.js"></script>
+</body>
+</html>
+
+<span class="circle" id="colorCircle"></span>
+
+<span class="smile" id="smileDrawn"></span>
+
+<style>
+.circle {
+  height: 500px;
+  width: 500px;
+  background: #000000;
+  border-radius: 50%;
+  display: inline-block;
+  z-index: -1;
+  position: absolute;
+} 
+.smile{
+    height: 20px;
+    width: 20px;
+    background: #dfdfdf;
+    display: inline-block;
+    
+    z-index: 10;
+    top: 100px;
+    left: 100px;
+    position: absolute;
+    opacity: 1;
+}
+</style>
+
+
+<script>
+
+    const socket = io();
+
+
+
+</script>

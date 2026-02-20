@@ -22,26 +22,35 @@
 <br><br>
 
 <div class="selectRoom" id="roomSelect">
-    <span id="roomSelectText">Welcome to NeuroLight! Please type in a room, and make sure it aligns with your client!</span>
+    <span style="font-size: 300%;" id="roomSelectIntro">Welcome to NeuroLight!</span>
     <br>
-    <input id="roomSelectInput" minlength="3" maxlength="10" size="20" placeholder="Can be between 3-10 numbers/letters"></input>
-    <button onclick="roomSelected()" id="roomSelectSubmit">Submit</button>
+    <span id="roomSelectText"></span>Please type in a room, and make sure it aligns with your client!</span>
     <br>
-    <label id="roomSelectError">Please input a valid room!</label>
     <br>
-    <label id="roomSelectPatreon">This website is hosted for free thanks to generous patrons! It would be greatly appreciated if you became one! (insert link)</label>
+    <br>
+    <br>
+    <input id="roomSelectInput" minlength="3" maxlength="10" size="30" placeholder="Can be between 3-10 numbers/letters"></input>
+    <br>
+    <button onclick="roomSelected()" id="roomSelectSubmit" class="standardButton">Enter this room</button>
+    <br>
+    <label id="roomSelectError" style="color: red;">Please input a valid room!</label>
+    <br><br><br><br>
+    <label id="roomSelectDonation">This website is hosted for free thanks to generous patrons! It would be greatly appreciated if you became one!</label>
+    <br>
+    <a href="www.google.com" id="roomSelectKofi">One Time Donation</a> |
+    <a href="lol" id="roomSelectPatreon">Recurring Donation</a>
 </div>
 
 <div class="selectUser" id="userSelect">
-    <span id="userSelectText">Welcome to room ___, what user are you?</span>
+    <span style="font-size: 300%;" id="userSelectText">Welcome to Room ___, what user are you?</span>
     <br>
-    <button onclick="loadClient(true)" id="userSelectClient">Client</button>
-    <button onclick="loadClient(false)" id="userSelectAdmin">Admin</button>
+    <button onclick="loadClient(true)" id="userSelectClient" class="clientOrAdmin">Client</button>
+    <button onclick="loadClient(false)" id="userSelectAdmin" class="clientOrAdmin">Admin</button>
 </div>
 
 <span class="circle" id="colorCircle"></span>
 
-<img src="Smile.png" class="smile" id="smileDrawn"></img>
+<img src="SmileWhite.png" class="smile" id="smileDrawn"></img>
 
 
 <b class="sectionHeader">Color Controls</b>
@@ -61,39 +70,25 @@
     <input onchange="changeRGB()" oninput="changeRGB()" type="range" min="0" max="255" value="0" class="slider" id="myRangeBlue">
 </div>
 
-<button onclick="colorChange(100, 0, 0)" class="colorButton" name="rgb(100, 0, 0)"></button>
-<button onclick="colorChange(255, 55, 0)" class="colorButton" name="rgb(255, 55, 0)"></button>
-<button onclick="colorChange(0, 255, 0)" class="colorButton" name="rgb(0, 255, 0)"></button>
-<button onclick="colorChange(55, 0, 255)" class="colorButton" name="rgb(55, 0, 255)"></button>
-<button onclick="colorChange(0, 0, 0)" class="colorButton" name="rgb(0, 0, 0)"></button>
-<button onclick="colorChange(200, 0, 0)" class="colorButton" name="rgb(200, 0, 0)"></button>
-<button onclick="colorChange(255, 255, 0)" class="colorButton" name="rgb(255, 255, 0)"></button>
-<button onclick="colorChange(100, 0, 200)" class="colorButton" name="rgb(100, 0, 200)"></button>
-<button onclick="colorChange(255, 255, 255)" class="colorButton" name="rgb(255, 255, 255)"></button>
-<button onclick="colorChange(255, 20, 0)" class="colorButton" name="rgb(255, 20, 0)"></button>
-<button onclick="colorChange(175, 255, 0)" class="colorButton" name="rgb(175, 255, 0)"></button>
-<button onclick="colorChange(0, 0, 255)" class="colorButton" name="rgb(0, 0, 255)"></button>
-<button onclick="colorChange(255, 0, 255)" class="colorButton" name="rgb(255, 0, 255)"></button>
+<button onclick="colorChange(100, 0, 0)" class="colorButton" name="rgb(100, 0, 0)">Brown</button>
+<button onclick="colorChange(200, 0, 0)" class="colorButton" name="rgb(200, 0, 0)">Red</button>
+<button onclick="colorChange(255, 20, 0)" class="colorButton" name="rgb(255, 20, 0)">Red Orange</button>
+<button onclick="colorChange(255, 55, 0)" class="colorButton" name="rgb(255, 55, 0)">Orange</button>
+<button onclick="colorChange(255, 255, 0)" class="colorButton" name="rgb(255, 255, 0)">Yellow</button>
+<button onclick="colorChange(175, 255, 0)" class="colorButton" name="rgb(175, 255, 0)">Yellow Green</button>
+<button onclick="colorChange(0, 255, 0)" class="colorButton" name="rgb(0, 255, 0)">Green</button>
+<button onclick="colorChange(55, 0, 255)" class="colorButton" name="rgb(55, 0, 255)">Indigo</button>
+<button onclick="colorChange(100, 0, 200)" class="colorButton" name="rgb(100, 0, 200)">Violet</button>
+<button onclick="colorChange(0, 0, 255)" class="colorButton" name="rgb(0, 0, 255)">Blue</button>
+<button onclick="colorChange(255, 0, 255)" class="colorButton" name="rgb(255, 0, 255)">Magenta</button>
+<button onclick="colorChange(0, 0, 0)" class="colorButton" name="rgb(0, 0, 0)">Black</button>
+<button onclick="colorChange(255, 255, 255)" class="colorButton" name="rgb(255, 255, 255)">White</button>
 
 <br><br><b class="sectionHeader">Frequency Control</b>
 
 <div class="slidecontainer">
     <span class="valueReader" id="freqVal"></span><br>
     <input onchange="changeFrequency()" type="range" min="0" max="40" value="0" class="slider" id="freqRange">
-</div>
-
-<b class="sectionHeader">Smile Object Controls</b><br>
-
-<button class="smileToggler" onclick="smileToggle()" id="toggleSmileButton">Turn Smile on</button>
-
-<div class="slidecontainer">
-    <span class="valueReader" id="smileX"></span><br>
-    <input onchange="adjustSmile()" oninput="adjustSmile()" type="range" min="0" max="2000" value="100" class="slider" id="smileXRange">
-</div>
-
-<div class="slidecontainer">
-    <span class="valueReader" id="smileY"></span><br>
-    <input onchange="adjustSmile()" oninput="adjustSmile()" type="range" min="0" max="1500" value="100" class="slider" id="smileYRange">
 </div>
 
 <b class="sectionHeader">Circle Controls</b>
@@ -113,7 +108,23 @@
     <input onchange="adjustRadius()" oninput="adjustRadius()" type="range" min="1" max="10" value="5" class="slider" id="circleRadiusRange">
 </div>
 
-<button onclick="resetCircle()">Reset</button>
+<b class="sectionHeader">Smile Object Controls</b>
+<div class="tooltip"> ? <span class="tooltipText">The smile object is designed for clients that have a hard time focusing somewhere specific, to have something to focus on</span></div>
+<br>
+
+<button class="smileToggler" onclick="smileToggle()" id="toggleSmileButton">Turn Smile on</button>
+
+<div class="slidecontainer">
+    <span class="valueReader" id="smileX"></span><br>
+    <input onchange="adjustSmile()" oninput="adjustSmile()" type="range" min="0" max="2000" value="100" class="slider" id="smileXRange">
+</div>
+
+<div class="slidecontainer">
+    <span class="valueReader" id="smileY"></span><br>
+    <input onchange="adjustSmile()" oninput="adjustSmile()" type="range" min="0" max="1500" value="100" class="slider" id="smileYRange">
+</div>
+
+<button onclick="resetCircle()" class="standardButton">Reset</button>
 
 
 
@@ -149,6 +160,7 @@
 }
 .smileToggler:hover{
     opacity: 1;
+    font-weight: bold; 
 }
 .slider{
     -webkit-appearance: none;
@@ -180,7 +192,14 @@
     height: 60px;
     width: 30px;
 }
-
+.standardButton{
+    opacity: 0.9;
+    margin: 5px;
+}
+.standardButton:hover{
+    opacity: 1;
+    font-weight: bold; 
+}
 .valueReader{
     font-size: 20px;
     background: "rgb(0,0,0)";
@@ -188,13 +207,15 @@
 .colorButton{
     -webkit-appearance: none;
     height: 20px;
-    width: 20px;
+    width: 100px;
     appearance: none;
     border-color: grey;
     opacity: .7;
+    color:rgb(119, 119, 119)
 }
 .colorButton:hover{
     background: white;
+    font-weight: bold; 
     opacity: 1;
 }
 
@@ -205,20 +226,65 @@
     width: 50px;
     height: 50px;
     background: rgb(227, 89, 255);
+    opacity: 0.8;
+}
+.switchClient:hover{
+    width: 50px;
+    height: 50px;
+    opacity: 1;
 }
 .selectRoom{
     position: absolute;
     left: 500px;
     top: 250px;
+    text-align: center;
 }
 .selectUser{
     position: absolute;
     left: 500px;
     top: 250px;
+    text-align: center;
+}
+.clientOrAdmin{
+    -webkit-appearance: none;
+    height: 300px;
+    width: 300px;
+    font-size: 400%;
+    margin: 20px;
+    opacity: .7;
+}
+.clientOrAdmin:hover{
+    opacity: 1;
+    font-weight: bold; 
 }
 .sectionHeader{
-    font-size: 200%;
-    
+    font-size: 200%;   
+}
+.tooltip{
+    display: inline-block;
+    border: 1px dotted black;
+    cursor: pointer;
+    font-size: 120%;
+    margin-left: 20px;
+}
+.tooltipText{
+    position: absolute;
+    z-index: 1;
+    opacity: 0;
+    background-color: grey;
+    border-radius: 20px;
+    padding: 5px;
+    text-align: center;
+    margin-top: 5px;
+    margin-left: -5px;
+    transition: opacity 0.3s;
+    visibility: hidden;
+    pointer-events: none;
+    /* TODO: make this hidden until it is needed to be real */
+}
+.tooltip:hover .tooltipText{
+    opacity: 1;
+    visibility: visible;
 }
 </style>
 
@@ -289,7 +355,7 @@
     function roomSelected(){
         if(roomInput.value.length < 11 && roomInput.value.length > 2){
             roomID = roomInput.value;
-            document.getElementById("userSelectText").innerHTML = "Welcome to room "+roomID+", what user are you?";
+            document.getElementById("userSelectText").innerHTML = "Welcome to Room "+roomID+", what user are you?";
             roomNumText.textContent = "Room "+roomID;
             socket.emit('room select', roomID);
             askUserClient();
@@ -503,7 +569,7 @@
             clientSwitchText.style.color = "white";
             //Toggle Visibility for client
             for(var elem of elems){
-                if(elem.id != "clientButton" && elem.id != "clientSwitchText" && !elem.id.includes("userSelect") && !elem.id.includes("roomSelect") && !elem.id.includes("RoomIDText")){
+                if(elem.id != "clientButton" && elem.id != "clientSwitchText" && !elem.id.includes("userSelect") && !elem.id.includes("roomSelect") && !elem.id.includes("RoomIDText") && elem.className!="tooltipText"){
                     elem.style.visibility = (elem.style.visibility == "visible" ? "hidden" : "visible");
                 }
             }
@@ -516,7 +582,7 @@
             clientSwitchText.style.color = "black";
             //Toggle Visibility for admin
             for(var elem of elems){
-                if(elem.id != "clientButton" && elem.id != "clientSwitchText" && !elem.id.includes("userSelect") && !elem.id.includes("roomSelect") && !elem.id.includes("RoomIDText")){
+                if(elem.id != "clientButton" && elem.id != "clientSwitchText" && !elem.id.includes("userSelect") && !elem.id.includes("roomSelect") && !elem.id.includes("RoomIDText") && elem.className!="tooltipText"){
                     elem.style.visibility = (elem.style.visibility == "visible" ? "hidden" : "visible");
                 }
             }

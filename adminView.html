@@ -412,8 +412,7 @@
 
     socket.on('password attempt', (success) => {
         if(adminAttempter){
-            if(true){
-            // if(success){ turn this back on when testing passwords
+            if(success){
                 var elems = document.body.getElementsByTagName("*");
                 for(var elem of elems){
                     if(elem.id != "colorCircle" && elem.id != "smileDrawn" && !elem.id.includes("userSelect") && !elem.id.includes("roomSelect")){

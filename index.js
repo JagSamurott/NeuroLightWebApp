@@ -13,7 +13,13 @@ app.get('/', (req, res) => {
 
 const fs = require("fs");
 const passwordFile = fs.readFileSync("./passwords.txt" )+'';
-const allPasswords = passwordFile.split("\r\n");
+const allPasswords = "";
+if (navigator.userAgent.indexOf('Win')!=-1)
+    allPasswords = passwordFile.split('\r\n');
+else if (navigator.userAgent.indexOf('Mac')!=-1)
+    allPasswords = passwordFile.split('\r');
+else
+    allPasswords = passwordFile.split('\n');
 console.log("Here are all the passwords:");
 console.log(allPasswords);
 

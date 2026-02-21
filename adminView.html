@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon">
-    <title>Client</title>
+    <title>NeuroLight</title>
 </head>
 <body>
     <script src="/socket.io/socket.io.js"></script>
@@ -24,7 +24,7 @@
 <div class="selectRoom" id="roomSelect">
     <span style="font-size: 300%;" id="roomSelectIntro">Welcome to NeuroLight!</span>
     <br>
-    <span id="roomSelectText"></span>Please type in a room, and make sure it aligns with your client!</span>
+    <span id="roomSelectText">Please type in a room, and make sure it aligns with your client!</span>
     <br>
     <br>
     <br>
@@ -35,10 +35,9 @@
     <br>
     <label id="roomSelectError" style="color: red;">Please input a valid room!</label>
     <br><br><br><br>
-    <label id="roomSelectDonation">This website is hosted for free thanks to generous patrons! It would be greatly appreciated if you became one!</label>
+    <label id="roomSelectDonation">This website is hosted for free for clients, with a monthly fee for therapists. Follow the below link for access!</label>
     <br>
-    <a href="www.google.com" id="roomSelectKofi">One Time Donation</a> |
-    <a href="lol" id="roomSelectPatreon">Recurring Donation</a>
+    <a href="https://www.google.com" target="_blank" id="roomSelectKofi">Patreon Link (not set up)</a>
 </div>
 
 <div class="selectUser" id="userSelect">
@@ -46,11 +45,21 @@
     <br>
     <button onclick="loadClient(true)" id="userSelectClient" class="clientOrAdmin">Client</button>
     <button onclick="loadClient(false)" id="userSelectAdmin" class="clientOrAdmin">Admin</button>
+    <br>
+    <div id="userSelectAdminPass" style="margin-left: 350px;">
+        <span id="userSelectAdminExplanation">Please enter your admin credentials:</span>
+        <br>
+        <input id="userSelectAdminInput" minlength="3" maxlength="20" size="30" placeholder="Enter Admin Password"></input>
+        <br>
+        <span id="userSelectAdminHelp">For testing, the password is "donut"</span>
+        <br>
+        <label id="userSelectAdminError" style="color: red; visibility: hidden;">Please input a valid password!</label>
+    </div>
 </div>
 
 <span class="circle" id="colorCircle"></span>
 
-<img src="SmileWhite.png" class="smile" id="smileDrawn"></img>
+<img src="./SmileWhite.png" class="smile" id="smileDrawn"></img>
 
 
 <b class="sectionHeader">Color Controls</b>
@@ -70,6 +79,7 @@
     <input onchange="changeRGB()" oninput="changeRGB()" type="range" min="0" max="255" value="0" class="slider" id="myRangeBlue">
 </div>
 
+<button onclick="colorChange(0, 0, 0)" class="colorButton" name="rgb(0, 0, 0)">Black</button>
 <button onclick="colorChange(100, 0, 0)" class="colorButton" name="rgb(100, 0, 0)">Brown</button>
 <button onclick="colorChange(200, 0, 0)" class="colorButton" name="rgb(200, 0, 0)">Red</button>
 <button onclick="colorChange(255, 20, 0)" class="colorButton" name="rgb(255, 20, 0)">Red Orange</button>
@@ -77,11 +87,10 @@
 <button onclick="colorChange(255, 255, 0)" class="colorButton" name="rgb(255, 255, 0)">Yellow</button>
 <button onclick="colorChange(175, 255, 0)" class="colorButton" name="rgb(175, 255, 0)">Yellow Green</button>
 <button onclick="colorChange(0, 255, 0)" class="colorButton" name="rgb(0, 255, 0)">Green</button>
+<button onclick="colorChange(0, 0, 255)" class="colorButton" name="rgb(0, 0, 255)">Blue</button>
 <button onclick="colorChange(55, 0, 255)" class="colorButton" name="rgb(55, 0, 255)">Indigo</button>
 <button onclick="colorChange(100, 0, 200)" class="colorButton" name="rgb(100, 0, 200)">Violet</button>
-<button onclick="colorChange(0, 0, 255)" class="colorButton" name="rgb(0, 0, 255)">Blue</button>
 <button onclick="colorChange(255, 0, 255)" class="colorButton" name="rgb(255, 0, 255)">Magenta</button>
-<button onclick="colorChange(0, 0, 0)" class="colorButton" name="rgb(0, 0, 0)">Black</button>
 <button onclick="colorChange(255, 255, 255)" class="colorButton" name="rgb(255, 255, 255)">White</button>
 
 <br><br><b class="sectionHeader">Frequency Control</b>
@@ -290,7 +299,6 @@
 
 
 <script>
-
     const socket = io();
     var roomID = "";
 
@@ -338,6 +346,10 @@
     var roomNumText = document.getElementById("RoomIDText");
 
     roomInput.addEventListener('input', () => { });
+    
+    var adminPassword = document.getElementById("userSelectAdminInput");
+
+    adminPassword.addEventListener('input', () => { });
 
     function roomSelect(){
         var elems = document.body.getElementsByTagName("*");
@@ -368,7 +380,7 @@
     function askUserClient(){
         var elems = document.body.getElementsByTagName("*");
         for(var elem of elems){
-            if(!elem.id.includes("userSelect")){
+            if(!elem.id.includes("userSelect") || elem.id.includes("userSelectAdminError")){
                 elem.style.visibility = "hidden";
             }
             else{
@@ -377,19 +389,14 @@
         }
     }
 
+    var adminAttempter = false;
     function loadClient(isClient){
-        var elems = document.body.getElementsByTagName("*");
         if(!isClient){
-            for(var elem of elems){
-                if(elem.id != "colorCircle" && elem.id != "smileDrawn" && !elem.id.includes("userSelect") && !elem.id.includes("roomSelect")){
-                    elem.style.visibility = "visible";
-                }
-                else{
-                    elem.style.visibility = "hidden";
-                }
-            }
-        }
+            adminAttempter = true;
+            socket.emit('password attempt', roomID, adminPassword.value);
+        }   
         else{
+            var elems = document.body.getElementsByTagName("*");
             for(var elem of elems){
                 if(elem.id != "colorCircle" && elem.id != "smileDrawn" && elem.id!="RoomIDText"){
                     elem.style.visibility = "hidden";
@@ -402,6 +409,27 @@
             roomNumText.style.color = 'white';
         }
     }
+
+    socket.on('password attempt', (success) => {
+        if(adminAttempter){
+            if(success){
+                var elems = document.body.getElementsByTagName("*");
+                for(var elem of elems){
+                    if(elem.id != "colorCircle" && elem.id != "smileDrawn" && !elem.id.includes("userSelect") && !elem.id.includes("roomSelect")){
+                        elem.style.visibility = "visible";
+                    }
+                    else{
+                        elem.style.visibility = "hidden";
+                    }
+                }
+            }
+            else{
+                adminAttempter = false;
+                document.getElementById("userSelectAdminError").style.visibility = "visible";
+            }
+        }
+    })
+
     // When testing, use loadClient, otherwise roomSelect
     // loadClient()
     roomSelect()
@@ -427,7 +455,7 @@
     }
     setColorButtons()
     
-    //socket stuff
+    //socket operations for the admin/client controls
     socket.on('change color', (r,g,b,fs) => {
         colorChange(r,g,b,fs);
     })
@@ -446,6 +474,7 @@
     socket.on('change radius', (fs, nR) => {
         adjustRadius(fs, nR);
     })
+
 
 
     function flashFunction(){
@@ -506,15 +535,12 @@
     }
 
     function smileToggle(fromSocket=false, newOpacity=null){
-        console.log("look now4",smile.style.opacity);
         if(fromSocket){
             if(newOpacity!=null){
                 smile.style.opacity = (smile.style.opacity == 0 ? 1 : 0);
-                console.log("look now",smile.style.opacity);
             }
             else{
                 smile.style.opacity = newOpacity;
-                console.log("look now2",smile.style.opacity);
             }
 
             if(smileButton.textContent == "Turn Smile on"){
@@ -527,7 +553,6 @@
             }
         }
         else{
-            console.log(smile.style.opacity);
             socket.emit('change smile', true, smile.style.opacity,roomID);
         }
     }

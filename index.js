@@ -11,6 +11,9 @@ app.get('/', (req, res) => {
   res.sendFile(join(__dirname, 'adminView.html'));
 });
 
+const fs = require("fs");
+const passwordFile = fs.readFileSync("./passwords.txt" )+'';
+const allPasswords = passwordFile.split("\r\n");
 
 io.on('connection', (socket) => {
     console.log('a user connected');
@@ -21,6 +24,9 @@ io.on('connection', (socket) => {
         socket.join(room);
     })
 
+    socket.on('password attempt', (room, attempt) =>{
+        io.to(room).emit('password attempt', allPasswords.includes(attempt))
+    })
 
     socket.on("disconnect", () => {
         console.log("user disconnected");

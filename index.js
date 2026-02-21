@@ -14,6 +14,7 @@ app.get('/', (req, res) => {
 const fs = require("fs");
 const passwordFile = fs.readFileSync("./passwords.txt" )+'';
 const allPasswords = passwordFile.split("\r\n");
+console.log(allPasswords);
 
 io.on('connection', (socket) => {
     console.log('a user connected');

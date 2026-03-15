@@ -8,7 +8,10 @@
     <title>NeuroLight</title>
 </head>
 <body>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="/socket.io/socket.io.js"></script>
+    <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+
 </body>
 </html>
 
@@ -18,18 +21,23 @@
   <input class="switchClient" type="button" id="clientButton" name="btnToggle" onclick="toggleClientView()" />
   <span></span>
 </label>
-<label id="clientSwitchText">Switch to Client View</label>
+<label id="clientSwitchText" style="margin-right: 50px;">Switch to Client View</label>
+
+<label id="currColorText">Current Color:</label>
+<input class="currCircle" id="currColorCircle" type="button"></input>
+
+<input type="button" onclick="resetCircle()" class="resetButton" value="Reset settings to default"></button>
 <br><br>
 
 <div class="selectRoom" id="roomSelect">
-    <span style="font-size: 300%;" id="roomSelectIntro">Welcome to NeuroLight!</span>
+    <span style="font-size: 300%;" id="roomSelectIntro">Welcome to Colored Connections!</span>
     <br>
     <span id="roomSelectText">Please type in a room, and make sure it aligns with your client!</span>
     <br>
     <br>
     <br>
     <br>
-    <input id="roomSelectInput" minlength="3" maxlength="10" size="30" placeholder="Can be between 3-10 numbers/letters"></input>
+    <input id="roomSelectInput" minlength="3" maxlength="10" size="30" placeholder="Can be between 3-10 characters"></input>
     <br>
     <button onclick="roomSelected()" id="roomSelectSubmit" class="standardButton">Enter this room</button>
     <br>
@@ -37,7 +45,7 @@
     <br><br><br><br>
     <label id="roomSelectDonation">This website is hosted for free for clients, with a monthly fee for therapists. Follow the below link for access!</label>
     <br>
-    <a href="https://www.google.com" target="_blank" id="roomSelectKofi">Patreon Link (not set up)</a>
+    <a id="roomSelectSubButton" href="https://buy.stripe.com/test_6oU00jdz16Wjg3e4T5gw000" target="_blank" class="subButton">Click to Subscribe</a>
 </div>
 
 <div class="selectUser" id="userSelect">
@@ -45,109 +53,147 @@
     <br>
     <button onclick="loadClient(true)" id="userSelectClient" class="clientOrAdmin">Client</button>
     <button onclick="loadClient(false)" id="userSelectAdmin" class="clientOrAdmin">Admin</button>
+    
     <br>
     <div id="userSelectAdminPass" style="margin-left: 350px;">
-        <span id="userSelectAdminExplanation">Please enter your admin credentials:</span>
+        <span id="userSelectAdminExplanation">Please enter your subscription email:</span>
         <br>
-        <input id="userSelectAdminInput" minlength="3" maxlength="20" size="30" placeholder="Enter Admin Password"></input>
+        <input id="userSelectAdminInput" minlength="3" maxlength="20" size="30" placeholder="Enter Admin Email"></input>
         <br>
-        <span id="userSelectAdminHelp">For testing, the password is "donut"</span>
+        <span id="userSelectAdminHelp">For testing, "test@gmail.com" will work, or make a test subscription. In the future, a valid subscription will be required!</span>
         <br>
-        <label id="userSelectAdminError" style="color: red; visibility: hidden;">Please input a valid password!</label>
+        <label id="userSelectAdminError" style="color: red; visibility: hidden;">Please input a valid email!</label>
+        <div class="g_id_signin" data-type="standard" id="g_id_button"></div>
+        <a id="userSelectSubButton" href="https://buy.stripe.com/test_6oU00jdz16Wjg3e4T5gw000" target="_blank" class="subButton">Subscribe</a>
     </div>
 </div>
 
 <span class="circle" id="colorCircle"></span>
 
-<img src="./SmileWhite.png" class="smile" id="smileDrawn"></img>
+<img src="/public/images/SmileWhite.png" class="smile" id="smileDrawn" alt=""></img>
 
+<div class="controlsSection">
+    <b class="sectionHeader">Color Controls</b>
 
-<b class="sectionHeader">Color Controls</b>
+    <div class="slidecontainer"> 
+        <span class="valueReader" id="redVal"></span>
+        <input type="button" class="incrementButton" onclick="increment('red',false)" value="&#8592;"></input>
+        <input type="button" class="incrementButton" onclick="increment('red',true)" value="&#8594;"></input>
+        <br>
+        <input onchange="changeRGB()" oninput="changeRGB()" type="range" min="0" max="255" value="100" class="slider" id="myRangeRed">
+    </div>
 
-<div class="slidecontainer"> 
-    <span class="valueReader" id="redVal"></span><br>
-    <input onchange="changeRGB()" oninput="changeRGB()" type="range" min="0" max="255" value="100" class="slider" id="myRangeRed">
+    <div class="slidecontainer">
+        <span class="valueReader" id="greenVal"></span></span>
+        <input type="button" class="incrementButton" onclick="increment('green',false)" value="&#8592;"></input>
+        <input type="button" class="incrementButton" onclick="increment('green',true)" value="&#8594;"></input>
+        <br>
+        <input onchange="changeRGB()" oninput="changeRGB()" type="range" min="0" max="255" value="0" class="slider" id="myRangeGreen">
+    </div>
+
+    <div class="slidecontainer">
+        <span class="valueReader" id="blueVal"></span></span>
+        <input type="button" class="incrementButton" onclick="increment('blue',false)" value="&#8592;"></input>
+        <input type="button" class="incrementButton" onclick="increment('blue',true)" value="&#8594;"></input>
+        <br>
+        <input onchange="changeRGB()" oninput="changeRGB()" type="range" min="0" max="255" value="0" class="slider" id="myRangeBlue">
+    </div>
+
+    <button onclick="colorChange(0, 0, 0)" class="colorButton" name="rgb(0, 0, 0)" style="color: #dfdfdf;">Black</button>
+    <button onclick="colorChange(100, 0, 0)" class="colorButton" name="rgb(100, 0, 0)" style="color: #dfdfdf;">Far Red</button>
+    <button onclick="colorChange(200, 0, 0)" class="colorButton" name="rgb(200, 0, 0)" style="color: #dfdfdf;">Red</button>
+    <button onclick="colorChange(255, 20, 0)" class="colorButton" name="rgb(255, 20, 0)" style="color: #000000;">Red Orange</button>
+    <button onclick="colorChange(255, 55, 0)" class="colorButton" name="rgb(255, 55, 0)" style="color: #000000;">Orange</button>
+    <button onclick="colorChange(255, 255, 0)" class="colorButton" name="rgb(255, 255, 0)" style="color: #000000;">Yellow</button>
+    <button onclick="colorChange(175, 255, 0)" class="colorButton" name="rgb(175, 255, 0)" style="color: #000000;">Yellow Green</button>
+    <button onclick="colorChange(0, 255, 0)" class="colorButton" name="rgb(0, 255, 0)" style="color: #000000;">Green</button>
+    <button onclick="colorChange(0, 0, 255)" class="colorButton" name="rgb(0, 0, 255)" style="color: #dfdfdf;">Blue</button>
+    <button onclick="colorChange(55, 0, 255)" class="colorButton" name="rgb(55, 0, 255)" style="color: #dfdfdf;">Indigo</button>
+    <button onclick="colorChange(100, 0, 200)" class="colorButton" name="rgb(100, 0, 200)" style="color: #dfdfdf;">Violet</button>
+    <button onclick="colorChange(255, 0, 255)" class="colorButton" name="rgb(255, 0, 255)" style="color: #dfdfdf;">Magenta</button>
+    <button onclick="colorChange(255, 255, 255)" class="colorButton" name="rgb(255, 255, 255)" style="color: #000000;">White</button>
+
+    <div class="slidecontainer">
+        <span class="valueReader" id="brightVal"></span></span>
+        <input type="button" class="incrementButton" onclick="increment('bright',false)" value="&#8592;"></input>
+        <input type="button" class="incrementButton" onclick="increment('bright',true)" value="&#8594;"></input>
+        <br>
+        <input onchange="changeBright()" oninput="changeBright()" type="range" min="0" max="10" value="10" class="slider" id="myRangeBright">
+    </div>
 </div>
 
-<div class="slidecontainer">
-    <span class="valueReader" id="greenVal"></span><br>
-    <input onchange="changeRGB()" oninput="changeRGB()" type="range" min="0" max="255" value="0" class="slider" id="myRangeGreen">
+<div class="controlsSection">
+    <b class="sectionHeader">Frequency Control</b>
+
+    <div class="slidecontainer">
+        <span class="valueReader" id="freqVal"></span>
+        <input type="button" class="incrementButton" onclick="increment('freq',false)" value="&#8592;"></input>
+        <input type="button" class="incrementButton" onclick="increment('freq',true)" value="&#8594;"></input>
+        <br>
+        <input onchange="changeFrequency()" type="range" min="0" max="40" value="0" class="slider" id="freqRange">
+    </div>
 </div>
 
-<div class="slidecontainer">
-    <span class="valueReader" id="blueVal"></span><br>
-    <input onchange="changeRGB()" oninput="changeRGB()" type="range" min="0" max="255" value="0" class="slider" id="myRangeBlue">
+<div class="controlsSection">
+    <b class="sectionHeader">Circle Controls</b>
+
+    <div class="slidecontainer">
+        <span class="valueReader" id="circleX"></span><br>
+        <input onchange="adjustCircle()" oninput="adjustCircle()" type="range" min="0" max="1000" value="500" class="slider" id="circleXRange">
+    </div>
+
+    <div class="slidecontainer">
+        <span class="valueReader" id="circleY"></span><br>
+        <input onchange="adjustCircle()" oninput="adjustCircle()" type="range" min="0" max="500" value="250" class="slider" id="circleYRange">
+    </div>
+
+    <div class="slidecontainer">
+        <span class="valueReader" id="circleRadius"></span><br>
+        <input onchange="adjustRadius()" oninput="adjustRadius()" type="range" min="1" max="10" value="5" class="slider" id="circleRadiusRange">
+    </div>
 </div>
 
-<button onclick="colorChange(0, 0, 0)" class="colorButton" name="rgb(0, 0, 0)">Black</button>
-<button onclick="colorChange(100, 0, 0)" class="colorButton" name="rgb(100, 0, 0)">Brown</button>
-<button onclick="colorChange(200, 0, 0)" class="colorButton" name="rgb(200, 0, 0)">Red</button>
-<button onclick="colorChange(255, 20, 0)" class="colorButton" name="rgb(255, 20, 0)">Red Orange</button>
-<button onclick="colorChange(255, 55, 0)" class="colorButton" name="rgb(255, 55, 0)">Orange</button>
-<button onclick="colorChange(255, 255, 0)" class="colorButton" name="rgb(255, 255, 0)">Yellow</button>
-<button onclick="colorChange(175, 255, 0)" class="colorButton" name="rgb(175, 255, 0)">Yellow Green</button>
-<button onclick="colorChange(0, 255, 0)" class="colorButton" name="rgb(0, 255, 0)">Green</button>
-<button onclick="colorChange(0, 0, 255)" class="colorButton" name="rgb(0, 0, 255)">Blue</button>
-<button onclick="colorChange(55, 0, 255)" class="colorButton" name="rgb(55, 0, 255)">Indigo</button>
-<button onclick="colorChange(100, 0, 200)" class="colorButton" name="rgb(100, 0, 200)">Violet</button>
-<button onclick="colorChange(255, 0, 255)" class="colorButton" name="rgb(255, 0, 255)">Magenta</button>
-<button onclick="colorChange(255, 255, 255)" class="colorButton" name="rgb(255, 255, 255)">White</button>
+<div class="controlsSection">
+    <b class="sectionHeader">Smile Object Controls</b>
+    <div class="tooltip"> ? <span class="tooltipText">The smile object is designed for clients that have a hard time focusing somewhere specific, to have something to focus on. <br>NOTE: It is recommended to pull up a second window for most accurate use of the smile.</span></div>
+    <br>
 
-<br><br><b class="sectionHeader">Frequency Control</b>
+    <button class="smileToggler" onclick="smileToggle()" id="toggleSmileButton">Turn Smile on</button>
 
-<div class="slidecontainer">
-    <span class="valueReader" id="freqVal"></span><br>
-    <input onchange="changeFrequency()" type="range" min="0" max="40" value="0" class="slider" id="freqRange">
+    <div class="slidecontainer">
+        <span class="valueReader" id="smileX"></span><br>
+        <input onchange="adjustSmile()" oninput="adjustSmile()" type="range" min="0" max="2000" value="750" class="slider" id="smileXRange">
+    </div>
+
+    <div class="slidecontainer">
+        <span class="valueReader" id="smileY"></span><br>
+        <input onchange="adjustSmile()" oninput="adjustSmile()" type="range" min="0" max="1500" value="500" class="slider" id="smileYRange">
+    </div>
 </div>
-
-<b class="sectionHeader">Circle Controls</b>
-
-<div class="slidecontainer">
-    <span class="valueReader" id="circleX"></span><br>
-    <input onchange="adjustCircle()" oninput="adjustCircle()" type="range" min="0" max="1000" value="500" class="slider" id="circleXRange">
-</div>
-
-<div class="slidecontainer">
-    <span class="valueReader" id="circleY"></span><br>
-    <input onchange="adjustCircle()" oninput="adjustCircle()" type="range" min="0" max="500" value="250" class="slider" id="circleYRange">
-</div>
-
-<div class="slidecontainer">
-    <span class="valueReader" id="circleRadius"></span><br>
-    <input onchange="adjustRadius()" oninput="adjustRadius()" type="range" min="1" max="10" value="5" class="slider" id="circleRadiusRange">
-</div>
-
-<b class="sectionHeader">Smile Object Controls</b>
-<div class="tooltip"> ? <span class="tooltipText">The smile object is designed for clients that have a hard time focusing somewhere specific, to have something to focus on</span></div>
-<br>
-
-<button class="smileToggler" onclick="smileToggle()" id="toggleSmileButton">Turn Smile on</button>
-
-<div class="slidecontainer">
-    <span class="valueReader" id="smileX"></span><br>
-    <input onchange="adjustSmile()" oninput="adjustSmile()" type="range" min="0" max="2000" value="100" class="slider" id="smileXRange">
-</div>
-
-<div class="slidecontainer">
-    <span class="valueReader" id="smileY"></span><br>
-    <input onchange="adjustSmile()" oninput="adjustSmile()" type="range" min="0" max="1500" value="100" class="slider" id="smileYRange">
-</div>
-
-<button onclick="resetCircle()" class="standardButton">Reset</button>
 
 
 
 <style>
 .circle {
-  height: 500px;
-  width: 500px;
-  background: rgb(100, 0, 0);
-  border-radius: 50%;
-  display: inline-block;
-  z-index: -1;
-  position: absolute;
-  left: 500px;
-  top: 250px;
+    height: 500px;
+    width: 500px;
+    background: rgb(100, 0, 0);
+    border-radius: 50%;
+    display: inline-block;
+    z-index: -1;
+    position: absolute;
+    left: 500px;
+    top: 250px;
+} 
+.currCircle {
+    height: 50px;
+    width: 50px;
+    background: rgb(100, 0, 0);
+    display: inline-block;
+    z-index: -1;
+    border: 3px solid black;
+    align-content: center;
+    /* margin-top: 50px; */
 } 
 .smile{
     height: 20px;
@@ -156,10 +202,11 @@
     display: inline-block;
     
     z-index: 10;
-    top: 100px;
-    left: 100px;
+    top: 500px;
+    left: 750px;
     position: absolute;
     opacity: 0;
+    background: transparent;
 }
 .smileToggler{
     height: 20px;
@@ -174,7 +221,7 @@
 .slider{
     -webkit-appearance: none;
     height: 20px;
-    width: 80%;
+    width: 90%;
     margin-bottom: 20px;
     outline: none;
     opacity: 0.7;
@@ -216,20 +263,45 @@
 .colorButton{
     -webkit-appearance: none;
     height: 20px;
-    width: 100px;
+    width: 7%;
     appearance: none;
-    border-color: grey;
-    opacity: .7;
-    color:rgb(119, 119, 119)
+    border-color: rgb(189, 189, 189);
+    opacity: 1;
 }
 .colorButton:hover{
     background: white;
+    border-color: rgb(0, 0, 0);
     font-weight: bold; 
     opacity: 1;
 }
 
 .colorButton:focus{
     background: white;
+}
+.incrementButton{
+    width: 40px;
+    height: 20px;
+    opacity: .8;
+}
+.incrementButton:hover{
+    font-weight: bold;
+    opacity: 1;
+}
+.subButton{
+    padding: 6px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    background-color: rgb(115, 154, 240);
+    border: 1px outset buttonborder;
+    border-radius: 3px;
+    opacity: .8;
+    text-decoration: none;
+    margin-top: 60px;
+    font-size: 150%;
+}
+.subButton:hover{
+    font-weight: bold;
+    opacity: 1;
 }
 .switchClient{
     width: 50px;
@@ -241,6 +313,17 @@
     width: 50px;
     height: 50px;
     opacity: 1;
+}
+.resetButton{
+    width: 300px;
+    height: 50px;
+    font-size: large;
+    opacity: 0.8;
+    margin-left: 40%;
+}
+.resetButton:hover{
+    opacity: 1;
+    font-weight: bold;
 }
 .selectRoom{
     position: absolute;
@@ -289,16 +372,48 @@
     transition: opacity 0.3s;
     visibility: hidden;
     pointer-events: none;
-    /* TODO: make this hidden until it is needed to be real */
 }
 .tooltip:hover .tooltipText{
     opacity: 1;
     visibility: visible;
 }
+.g_id_signin{
+    /* position: absolute; */
+    width: 40%;
+    align-content: center;
+    /* margin-left: auto;  */
+    margin-left: 140px;
+}
+.controlsSection{
+    background-color: rgb(230, 230, 230);
+    border-radius: 10px;
+    padding-top: .5%;
+    padding-bottom: .5%;
+    padding-left: 1%;
+    width: 95%;
+    margin-top: 5px;
+}
 </style>
 
 
 <script>
+    fetch('/api/envs')
+        .then(response => response.json())
+        .then(envs => handleEnvs(envs));
+    
+    function handleEnvs(envs){
+        google.accounts.id.initialize({
+            client_id: envs[0]["id"],
+            callback: handleCredentialResponse,
+            ux_mode: "redirect",
+            cancel_on_tap_outside: false,
+        });
+        google.accounts.id.prompt();
+        var g = document.createElement('div');
+        g.setAttribute("class", "g_id_signin");
+        document.getElementById("userSelect").appendChild(g);
+    }
+    
     const socket = io();
     var roomID = "";
 
@@ -306,6 +421,7 @@
     clientButton.style.backgroundColor = "rgb(185, 185, 185)";
     
     var circle = document.getElementById("colorCircle")
+    var currColor = document.getElementById("currColorCircle")
     var redSlider = document.getElementById("myRangeRed")
     var redOutput = document.getElementById("redVal");
     redOutput.innerHTML = "Red: "+redSlider.value; // Display the default slider value
@@ -317,6 +433,10 @@
     var blueSlider = document.getElementById("myRangeBlue")
     var blueOutput = document.getElementById("blueVal");
     blueOutput.innerHTML = "Blue: "+blueSlider.value; // Display the default slider value
+
+    var brightSlider = document.getElementById("myRangeBright")
+    var brightOutput = document.getElementById("brightVal");
+    brightOutput.innerHTML = "Brightness: "+brightSlider.value; // Display the default slider value
     
     var freqSlider = document.getElementById("freqRange");
     var freqOutput = document.getElementById("freqVal");
@@ -333,15 +453,15 @@
     
     var circleXSlider = document.getElementById("circleXRange");
     var circleXOutput = document.getElementById("circleX");
-    circleXOutput.innerHTML = "Circle X: "+circleXSlider.value;
+    circleXOutput.innerHTML = "Circle Position X: "+circleXSlider.value;
     var circleYSlider = document.getElementById("circleYRange");
     var circleYOutput = document.getElementById("circleY");
-    circleYOutput.innerHTML = "Circle Y: "+circleYSlider.value;
+    circleYOutput.innerHTML = "Circle Position Y: "+circleYSlider.value;
     
     var circleRadiusSlider = document.getElementById("circleRadiusRange");
     var circleRadiusOutput = document.getElementById("circleRadius");
     circleRadiusOutput.innerHTML = "Circle Radius: "+circleRadiusSlider.value;
-    
+
     const roomInput = document.getElementById("roomSelectInput");
     var roomNumText = document.getElementById("RoomIDText");
 
@@ -351,17 +471,47 @@
 
     adminPassword.addEventListener('input', () => { });
 
+    var userEmail = "myemail@gmail.com"
+    //uncomment the following line for easy testing
+    var signInButton = document.getElementById("g_id_button");
+
+    //Google Identity collection, taken from Google Identity API: https://developers.google.com/identity/gsi/web/guides/display-google-one-tap#credential_response
+    function decodeJwtResponse(token) {
+        let base64Url = token.split('.')[1];
+        let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    }
+    function handleCredentialResponse(response) {
+        responsePayload = decodeJwtResponse(response.credential);
+
+        console.log("ID: " + responsePayload.sub);
+        console.log('Full Name: ' + responsePayload.name);
+        console.log('Given Name: ' + responsePayload.given_name);
+        console.log('Family Name: ' + responsePayload.family_name);
+        console.log("Image URL: " + responsePayload.picture);
+        console.log("Email: " + responsePayload.email);
+
+        userEmail = responsePayload.email;
+        adminPassword.value = responsePayload.email;
+    }
+
     function roomSelect(){
         var elems = document.body.getElementsByTagName("*");
         for(var elem of elems){
-            if(!elem.id.includes("roomSelect")){
+            if(!elem.id.includes("roomSelect") && !elem.id.includes("g_id")){
                 elem.style.visibility = "hidden";
             }
             else{
                 elem.style.visibility = "visible";
             }
         }
+        signInButton.style.visibility = "visible";
         document.getElementById("roomSelectError").style.visibility = "hidden";
+        signInButton.style.display = "none";
     }
 
     function roomSelected(){
@@ -380,13 +530,14 @@
     function askUserClient(){
         var elems = document.body.getElementsByTagName("*");
         for(var elem of elems){
-            if(!elem.id.includes("userSelect") || elem.id.includes("userSelectAdminError")){
+            if(elem.id.includes("roomSelect") || elem.id.includes("userSelectAdminError")){
                 elem.style.visibility = "hidden";
             }
-            else{
+            else if (elem.id.includes("userSelect")) {
                 elem.style.visibility = "visible";
             }
         }
+        signInButton.style.display = "block";
     }
 
     var adminAttempter = false;
@@ -422,6 +573,7 @@
                         elem.style.visibility = "hidden";
                     }
                 }
+                signInButton.style.display = "none";
             }
             else{
                 adminAttempter = false;
@@ -429,10 +581,9 @@
             }
         }
     })
-
     // When testing, use loadClient, otherwise roomSelect
     // loadClient()
-    roomSelect()
+    roomSelect();
     
     function setColorButtons(){
         var colorBtns = document.getElementsByClassName("colorButton");
@@ -443,6 +594,7 @@
         redSlider.style.setProperty('--SliderColor', "rgb(255, 0, 0)");
         greenSlider.style.setProperty('--SliderColor', "rgb(0, 255, 0)");
         blueSlider.style.setProperty('--SliderColor', "rgb(0, 0, 255)");
+        brightSlider.style.setProperty('--SliderColor', "rgb(255, 255, 102)");
         //freq slider
         freqSlider.style.setProperty('--SliderColor', "rgb(169, 255, 244)");
         //smile pos sliders
@@ -459,6 +611,9 @@
     socket.on('change color', (r,g,b,fs) => {
         colorChange(r,g,b,fs);
     })
+    socket.on('change bright', (fs, br) => {
+        changeBright(fs, br);
+    })
     socket.on('change freq', (fs,nf) => {
         changeFrequency(fs,nf);
     })
@@ -474,7 +629,7 @@
     socket.on('change radius', (fs, nR) => {
         adjustRadius(fs, nR);
     })
-
+    
 
 
     function flashFunction(){
@@ -483,14 +638,34 @@
     
     var flashInterval = setInterval(flashFunction,1000);
     clearInterval(flashInterval);
+
+    function increment(funcName, isIncrementing){
+        var amount = (isIncrementing) ? 1:-1;
+        if(funcName=="red"){
+            colorChange(Number(redSlider.value) + amount,greenSlider.value,blueSlider.value,false);
+        }
+        else if(funcName=="green"){
+            colorChange(redSlider.value,Number(greenSlider.value) + amount,blueSlider.value,false);
+        }
+        else if(funcName=="blue"){
+            colorChange(redSlider.value,greenSlider.value,Number(blueSlider.value) + amount,false);
+        }
+        else if(funcName=="bright"){
+            changeBright(false, Number(brightSlider.value) + amount);
+        }
+        else if(funcName=="freq"){
+            changeFrequency(false, Number(freqSlider.value) + amount);
+        }
+        
+    }
     
     function changeRGB(){
         colorChange(redSlider.value,greenSlider.value,blueSlider.value)
     }
-    
 
     function colorChange(r,g,b,fromSocket=false){
         circle.style.backgroundColor =  "rgb(" + r + "," + g + "," + b + ")";
+        currColor.style.backgroundColor =  "rgb(" + r + "," + g + "," + b + ")";
         redSlider.value = r;
         greenSlider.value = g;
         blueSlider.value = b;
@@ -499,6 +674,17 @@
         blueOutput.innerHTML = "Blue: "+blueSlider.value;
         if(!fromSocket){
             socket.emit('change color', r,g,b,true,roomID);
+        }
+    }
+
+    function changeBright(fromSocket=false, brightVal=null){
+        if(brightVal!=null){
+            brightSlider.value = brightVal;
+        }
+        brightOutput.innerHTML = "Brightness: "+brightSlider.value;
+        circle.style.opacity = brightSlider.value/10;
+        if(!fromSocket){
+            socket.emit('change bright', true, brightSlider.value, roomID);
         }
     }
     
@@ -621,15 +807,16 @@
         circle.style.backgroundColor =  "rgb(100,0,0)";
         colorChange(100,0,0);
 
+        changeBright(false, 10);
+
         if(smile.style.opacity == 1){
             smileToggle();
         }
         
         adjustCircle(false, 500, 250);
         
-        adjustSmile(false, 100, 100);
+        adjustSmile(false, 750, 500);
         
         adjustRadius(false, 5);
     }
-    
 </script>

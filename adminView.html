@@ -44,7 +44,7 @@
     <label id="roomSelectError" style="color: red;">Please input a valid room!</label>
     <br><br><br><br>
     <label id="roomSelectDonation">This website is hosted for free for clients, with a monthly fee for therapists. Follow the below link for access!</label>
-    <br>
+    <br><br>
     <a id="roomSelectSubButton" href="https://buy.stripe.com/test_6oU00jdz16Wjg3e4T5gw000" target="_blank" class="subButton">Click to Subscribe</a>
 </div>
 
@@ -63,7 +63,8 @@
         <span id="userSelectAdminHelp">For testing, "test@gmail.com" will work, or make a test subscription. In the future, a valid subscription will be required!</span>
         <br>
         <label id="userSelectAdminError" style="color: red; visibility: hidden;">Please input a valid email!</label>
-        <div class="g_id_signin" data-type="standard" id="g_id_button"></div>
+        <div class="g_button" id="g_id_button"></div>
+        <br>
         <a id="userSelectSubButton" href="https://buy.stripe.com/test_6oU00jdz16Wjg3e4T5gw000" target="_blank" class="subButton">Subscribe</a>
     </div>
 </div>
@@ -138,17 +139,26 @@
     <b class="sectionHeader">Circle Controls</b>
 
     <div class="slidecontainer">
-        <span class="valueReader" id="circleX"></span><br>
+        <span class="valueReader" id="circleX"></span>
+        <input type="button" class="incrementButton" onclick="increment('circleX',false)" value="&#8592;"></input>
+        <input type="button" class="incrementButton" onclick="increment('circleX',true)" value="&#8594;"></input>
+        <br>
         <input onchange="adjustCircle()" oninput="adjustCircle()" type="range" min="0" max="1000" value="500" class="slider" id="circleXRange">
     </div>
 
     <div class="slidecontainer">
-        <span class="valueReader" id="circleY"></span><br>
+        <span class="valueReader" id="circleY"></span>
+        <input type="button" class="incrementButton" onclick="increment('circleY',false)" value="&#8592;"></input>
+        <input type="button" class="incrementButton" onclick="increment('circleY',true)" value="&#8594;"></input>
+        <br>
         <input onchange="adjustCircle()" oninput="adjustCircle()" type="range" min="0" max="500" value="250" class="slider" id="circleYRange">
     </div>
 
     <div class="slidecontainer">
-        <span class="valueReader" id="circleRadius"></span><br>
+        <span class="valueReader" id="circleRadius"></span>
+        <input type="button" class="incrementButton" onclick="increment('circleRadius',false)" value="&#8592;"></input>
+        <input type="button" class="incrementButton" onclick="increment('circleRadius',true)" value="&#8594;"></input>
+        <br>
         <input onchange="adjustRadius()" oninput="adjustRadius()" type="range" min="1" max="10" value="5" class="slider" id="circleRadiusRange">
     </div>
 </div>
@@ -161,12 +171,18 @@
     <button class="smileToggler" onclick="smileToggle()" id="toggleSmileButton">Turn Smile on</button>
 
     <div class="slidecontainer">
-        <span class="valueReader" id="smileX"></span><br>
+        <span class="valueReader" id="smileX"></span>
+        <input type="button" class="incrementButton" onclick="increment('smileX',false)" value="&#8592;"></input>
+        <input type="button" class="incrementButton" onclick="increment('smileX',true)" value="&#8594;"></input>
+        <br>
         <input onchange="adjustSmile()" oninput="adjustSmile()" type="range" min="0" max="2000" value="750" class="slider" id="smileXRange">
     </div>
 
     <div class="slidecontainer">
-        <span class="valueReader" id="smileY"></span><br>
+        <span class="valueReader" id="smileY"></span>
+        <input type="button" class="incrementButton" onclick="increment('smileY',false)" value="&#8592;"></input>
+        <input type="button" class="incrementButton" onclick="increment('smileY',true)" value="&#8594;"></input>
+        <br>
         <input onchange="adjustSmile()" oninput="adjustSmile()" type="range" min="0" max="1500" value="500" class="slider" id="smileYRange">
     </div>
 </div>
@@ -221,7 +237,7 @@
 .slider{
     -webkit-appearance: none;
     height: 20px;
-    width: 90%;
+    width: 98%;
     margin-bottom: 20px;
     outline: none;
     opacity: 0.7;
@@ -263,7 +279,7 @@
 .colorButton{
     -webkit-appearance: none;
     height: 20px;
-    width: 7%;
+    width: 7.2%;
     appearance: none;
     border-color: rgb(189, 189, 189);
     opacity: 1;
@@ -327,14 +343,14 @@
 }
 .selectRoom{
     position: absolute;
-    left: 500px;
-    top: 250px;
+    left: 30%;
+    top: 25%;
     text-align: center;
 }
 .selectUser{
     position: absolute;
-    left: 500px;
-    top: 250px;
+    left: 15%;
+    top: 25%;
     text-align: center;
 }
 .clientOrAdmin{
@@ -377,12 +393,10 @@
     opacity: 1;
     visibility: visible;
 }
-.g_id_signin{
-    /* position: absolute; */
-    width: 40%;
+.g_button{
+    width: 30%;
     align-content: center;
-    /* margin-left: auto;  */
-    margin-left: 140px;
+    margin-left: 35%;
 }
 .controlsSection{
     background-color: rgb(230, 230, 230);
@@ -390,7 +404,7 @@
     padding-top: .5%;
     padding-bottom: .5%;
     padding-left: 1%;
-    width: 95%;
+    width: 99%;
     margin-top: 5px;
 }
 </style>
@@ -405,13 +419,15 @@
         google.accounts.id.initialize({
             client_id: envs[0]["id"],
             callback: handleCredentialResponse,
-            ux_mode: "redirect",
             cancel_on_tap_outside: false,
         });
+        google.accounts.id.renderButton(
+            document.getElementById("g_id_button"),
+        {
+            type: "standard",
+            text: "signin_with",
+        });
         google.accounts.id.prompt();
-        var g = document.createElement('div');
-        g.setAttribute("class", "g_id_signin");
-        document.getElementById("userSelect").appendChild(g);
     }
     
     const socket = io();
@@ -471,7 +487,8 @@
 
     adminPassword.addEventListener('input', () => { });
 
-    var userEmail = "myemail@gmail.com"
+    var userEmail = "test@gmail.com"
+    adminPassword.value = userEmail;
     //uncomment the following line for easy testing
     var signInButton = document.getElementById("g_id_button");
 
@@ -641,22 +658,38 @@
 
     function increment(funcName, isIncrementing){
         var amount = (isIncrementing) ? 1:-1;
-        if(funcName=="red"){
-            colorChange(Number(redSlider.value) + amount,greenSlider.value,blueSlider.value,false);
-        }
-        else if(funcName=="green"){
-            colorChange(redSlider.value,Number(greenSlider.value) + amount,blueSlider.value,false);
-        }
-        else if(funcName=="blue"){
-            colorChange(redSlider.value,greenSlider.value,Number(blueSlider.value) + amount,false);
-        }
-        else if(funcName=="bright"){
-            changeBright(false, Number(brightSlider.value) + amount);
-        }
-        else if(funcName=="freq"){
-            changeFrequency(false, Number(freqSlider.value) + amount);
-        }
-        
+        switch(funcName){
+            case "red":
+                colorChange(Number(redSlider.value) + amount,greenSlider.value,blueSlider.value,false);
+                break;
+            case "green":
+                colorChange(redSlider.value,Number(greenSlider.value) + amount,blueSlider.value,false);
+                break;
+            case "blue":
+                colorChange(redSlider.value,greenSlider.value,Number(blueSlider.value) + amount,false);
+                break;
+            case "bright":
+                changeBright(false, Number(brightSlider.value) + amount);
+                break;
+            case "freq":
+                changeFrequency(false, Number(freqSlider.value) + amount);
+                break;
+            case "circleX":
+                adjustCircle(false, Number(circleXSlider.value) + amount, circleYSlider.value);
+                break;
+            case "circleY":
+                adjustCircle(false, circleXSlider.value, Number(circleYSlider.value) + amount);
+                break;
+            case "circleRadius":
+                adjustRadius(false, Number(circleRadiusSlider.value) + amount);
+                break;
+            case "smileX":
+                adjustSmile(false, Number(smileXSlider.value) + amount, smileYSlider.value);
+                break;
+            case "smileY":
+                adjustSmile(false, smileXSlider.value, Number(smileYSlider.value) + amount);
+                break;
+        }        
     }
     
     function changeRGB(){

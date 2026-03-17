@@ -61,8 +61,9 @@ io.on('connection', (socket) => {
         getActiveSubsEmails()
             .then(function(emails) {
                 validSubs = emails;
-            });
-        io.to(room).emit('password attempt', validSubs.includes(attempt))
+            })
+            .then(io.to(room).emit('password attempt', validSubs.includes(attempt)));
+        
     })
 
     socket.on("disconnect", () => { 

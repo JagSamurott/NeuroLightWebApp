@@ -26,6 +26,8 @@
 <label id="currColorText">Current Color:</label>
 <input class="currCircle" id="currColorCircle" type="button"></input>
 
+<input id="clientURLButton" type="button" onclick="copyURL()" class="urlButton" value="Click to copy link for Client"></button>
+
 <input type="button" onclick="resetCircle()" class="resetButton" value="Reset settings to default"></button>
 <br><br>
 
@@ -338,11 +340,24 @@
     height: 50px;
     font-size: large;
     opacity: 0.8;
-    margin-left: 40%;
+    margin-left: 8%;
 }
 .resetButton:hover{
     opacity: 1;
     font-weight: bold;
+}
+.urlButton{
+    width: 300px;
+    height: 40px;
+    font-size: large;
+    opacity: 0.8;
+    margin-left: 10%;
+    -webkit-text-fill-color: blue;
+    text-decoration: underline;
+}
+.urlButton:hover{
+    opacity: 1;
+    /* font-weight: bold; */
 }
 .selectRoom{
     position: absolute;
@@ -484,6 +499,8 @@
     const roomInput = document.getElementById("roomSelectInput");
     var roomNumText = document.getElementById("RoomIDText");
 
+    var urlButton = document.getElementById("clientURLButton");
+
     roomInput.addEventListener('input', () => { });
     
     var adminPassword = document.getElementById("userSelectAdminInput");
@@ -603,7 +620,21 @@
     })
     // When testing, use loadClient, otherwise roomSelect
     // loadClient()
-    roomSelect();
+    function getRoomParameters(){
+        var parameters = new URLSearchParams(window.location.search);
+        var roomNum = parameters.get("roomID");
+        if(roomNum!=null){
+            // the user is a client getting a specific URL
+            roomID = roomNum;
+            socket.emit('room select', roomID);
+            roomNumText.textContent = "Room "+roomID;
+            loadClient(true);
+        }
+        else{
+            roomSelect();
+        }
+    }
+    getRoomParameters()
     
     function setColorButtons(){
         var colorBtns = document.getElementsByClassName("colorButton");
@@ -628,14 +659,30 @@
     setColorButtons()
     
     //socket operations for the admin/client controls
+    socket.on('sync to room', (roomSettings) =>{
+        changeFrequency(false, roomSettings["f"]);
+
+        circle.style.backgroundColor =  "rgb("+roomSettings["r"]+","+roomSettings["g"]+","+roomSettings["b"]+")";
+        colorChange(roomSettings["r"],roomSettings["g"],roomSettings["b"]);
+
+        changeBright(false, roomSettings["br"]);
+
+        smileToggle(false, roomSettings["sO"]);
+        
+        adjustCircle(false, roomSettings["cX"], roomSettings["cY"]);
+        
+        adjustSmile(false, roomSettings["sX"], roomSettings["sY"]);
+        
+        adjustRadius(false, roomSettings["cR"]);
+    })
     socket.on('change color', (r,g,b,fs) => {
-        colorChange(r,g,b,fs);
+        colorChange(r, g, b, fs);
     })
     socket.on('change bright', (fs, br) => {
         changeBright(fs, br);
     })
     socket.on('change freq', (fs,nf) => {
-        changeFrequency(fs,nf);
+        changeFrequency(fs, nf);
     })
     socket.on('change smile', (fs, nO) => {
         smileToggle(fs, nO);
@@ -653,7 +700,7 @@
 
 
     function flashFunction(){
-        circle.style.opacity = (circle.style.opacity == 0 ? 1 : 0);
+        circle.style.opacity = (circle.style.opacity == 0 ? brightSlider.value/10 : 0);
     }
     
     var flashInterval = setInterval(flashFunction,1000);
@@ -693,6 +740,13 @@
                 adjustSmile(false, smileXSlider.value, Number(smileYSlider.value) + amount);
                 break;
         }        
+    }
+
+    function copyURL(){
+        var url = document.URL + "?roomID="+roomID;
+        navigator.clipboard.writeText(url);
+        urlButton.value = "Link Copied!"
+        setTimeout(function() {urlButton.value = "Click to copy link for Client"},3000);
     }
     
     function changeRGB(){
@@ -734,7 +788,7 @@
             flashInterval = setInterval(flashFunction, 1000/(freqSlider.value*2));
         }
         else{
-            circle.style.opacity = 1;
+            circle.style.opacity = brightSlider.value/10;
         }
         if(!fromSocket){
             socket.emit('change freq', true, freqSlider.value,roomID);
@@ -757,15 +811,15 @@
     }
 
     function smileToggle(fromSocket=false, newOpacity=null){
-        if(fromSocket){
-            if(newOpacity!=null){
-                smile.style.opacity = (smile.style.opacity == 0 ? 1 : 0);
-            }
-            else{
-                smile.style.opacity = newOpacity;
-            }
+        if(newOpacity==null){
+            smile.style.opacity = (smile.style.opacity == 0 ? 1 : 0);
+        }
+        else{
+            smile.style.opacity = newOpacity;
+        }
 
-            if(smileButton.textContent == "Turn Smile on"){
+        if(fromSocket){
+            if(smile.style.opacity == 1){
                 smileButton.style.backgroundColor = "rgb(255, 20, 20)";
                 smileButton.textContent = "Turn Smile off";
             }

@@ -47,6 +47,7 @@ else
 console.log("Here are all the passwords:");
 console.log(allPasswords);
 
+var roomsAndInfo = {};
 
 io.on('connection', (socket) => {
     console.log('a user connected');
@@ -55,6 +56,24 @@ io.on('connection', (socket) => {
     socket.on('room select', (room) => {
         console.log("user joined room", room);
         socket.join(room);
+        if(roomsAndInfo[room]!=null){
+            io.to(room).emit('sync to room', roomsAndInfo[room])
+        }
+        else{
+            roomsAndInfo[room] = {
+                "r": 100,
+                "b": 0,
+                "g": 0,
+                "br": 10,
+                "f": 0,
+                "sO": false,
+                "sX": 750,
+                "sY": 500,
+                "cX": 500,
+                "cY": 250,
+                "cR": 5
+            };
+        }
     })
 
     socket.on('password attempt', (room, attempt) =>{
@@ -67,28 +86,40 @@ io.on('connection', (socket) => {
     })
 
     socket.on("disconnect", () => { 
+        //Create room deletion/reseting
         console.log("user disconnected");
     })
 
     socket.on('change color', (r, g, b, fs, room) => {
+        roomsAndInfo[room]["r"] = r;
+        roomsAndInfo[room]["g"] = g;
+        roomsAndInfo[room]["b"] = b;
         io.to(room).emit('change color', r,g,b,fs);
     })
     socket.on('change bright', (fs, br, room) => {
+        roomsAndInfo[room]["br"] = br;
         io.to(room).emit('change bright', fs,br);
     })
     socket.on('change freq', (fs, nf, room) => {
+        roomsAndInfo[room]["f"] = nf;
         io.to(room).emit('change freq', fs,nf);
     })
     socket.on('change smile', (fs, nO, room) => {
+        roomsAndInfo[room]["sO"] = nO;
         io.to(room).emit('change smile', fs, nO);
     })
     socket.on('change smile pos', (fs, nX, nY, room) => {
+        roomsAndInfo[room]["sX"] = nX;
+        roomsAndInfo[room]["sY"] = nY;
         io.to(room).emit('change smile pos', fs, nX, nY);
     })
     socket.on('change circle pos', (fs, nX, nY, room) => {
+        roomsAndInfo[room]["cX"] = nX;
+        roomsAndInfo[room]["cY"] = nY;
         io.to(room).emit('change circle pos', fs, nX, nY);
     })
     socket.on('change radius', (fs, nR, room) => {
+        roomsAndInfo[room]["cR"] = nR;
         io.to(room).emit('change radius', fs, nR);
     })
 

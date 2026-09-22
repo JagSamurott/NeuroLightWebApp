@@ -77,11 +77,12 @@ io.on('connection', (socket) => {
     })
 
     socket.on('password attempt', (room, attempt) =>{
-        getActiveSubsEmails()
-            .then(function(emails) {
-                validSubs = emails;
-            })
-            .then(io.to(room).emit('password attempt', validSubs.includes(attempt)));
+        // getActiveSubsEmails()
+        //     .then(function(emails) {
+        //         validSubs = emails;
+        //     })
+        //     .then(io.to(room).emit('password attempt', validSubs.includes(attempt)));
+        io.to(room).emit('password attempt', true);
         
     })
 
